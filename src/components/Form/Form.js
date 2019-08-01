@@ -110,7 +110,6 @@ class Form extends React.Component {
       <form onSubmit={this.validateForm}>
         <h1>Введите свои данные, агент</h1>
         {state.map(elem => {
-          console.log(elem);
           return (
             <Input
               key={elem.inputName}
@@ -161,9 +160,9 @@ class Input extends React.Component {
 
 function Profile(props) {
   return (
-    <div class="app-container">
+    <div className="app-container">
       <img
-        src="/static/media/bond_approve.9943a33d.jpg"
+        src="./assets/bond_approve.jpg"
         alt="bond approve"
         className="t-bond-image"
       />
