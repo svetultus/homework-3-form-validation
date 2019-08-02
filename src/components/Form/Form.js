@@ -1,4 +1,5 @@
 import React from 'react';
+import image from './assets/bond_approve.jpg';
 
 class Form extends React.Component {
   constructor(props) {
@@ -6,6 +7,7 @@ class Form extends React.Component {
 
     this.validateForm = this.validateForm.bind(this);
     this.changeInputHandler = this.changeInputHandler.bind(this);
+    this.clearInputs = this.clearInputs.bind(this);
 
     this.state = {
       formState: [
@@ -13,7 +15,7 @@ class Form extends React.Component {
           inputName: 'firstname',
           inputLabel: '',
           value: '',
-          valueCorrect: 'James',
+          valueCorrect: 'james',
           status: null,
           errorMsg: ''
         },
@@ -21,7 +23,7 @@ class Form extends React.Component {
           inputName: 'lastname',
           inputLabel: '',
           value: '',
-          valueCorrect: 'Bond',
+          valueCorrect: 'bond',
           status: null,
           errorMsg: ''
         },
@@ -84,7 +86,7 @@ class Form extends React.Component {
       this.setState({ formState: state });
     }
 
-    const formIsValidated = this.state.formState.every(elem => {
+    let formIsValidated = this.state.formState.every(elem => {
       return elem.status === 'validated';
     });
 
@@ -97,6 +99,18 @@ class Form extends React.Component {
     let value = e.target.value;
 
     state[index].value = value;
+    this.clearInputs();
+
+    this.setState({ formState: state });
+  }
+
+  clearInputs() {
+    let state = this.state.formState;
+
+    state.forEach(elem => {
+      elem.errorMsg = '';
+      elem.status = null;
+    });
 
     this.setState({ formState: state });
   }
@@ -104,69 +118,63 @@ class Form extends React.Component {
   render() {
     let state = this.state.formState;
 
-    if (this.state.isLogged) return <Profile />;
-
-    return (
-      <form onSubmit={this.validateForm}>
-        <h1>Введите свои данные, агент</h1>
-        {state.map(elem => {
-          return (
-            <Input
-              key={elem.inputName}
-              inputName={elem.inputName}
-              inputLabel={elem.inputLabel}
-              inputValue={elem.value}
-              errorMsg={elem.errorMsg}
-              changeInputHandler={this.changeInputHandler}
+    if (this.state.isLogged) {
+      return <Profile />;
+    } else {
+      return (
+        <form onSubmit={this.validateForm}>
+          <h1>Введите свои данные, агент</h1>
+          {state.map(elem => {
+            return (
+              <Input
+                key={elem.inputName}
+                inputName={elem.inputName}
+                inputLabel={elem.inputLabel}
+                inputValue={elem.value}
+                errorMsg={elem.errorMsg}
+                changeInputHandler={this.changeInputHandler}
+              />
+            );
+          })}
+          <div className="form__buttons">
+            <input
+              type="submit"
+              className="button t-submit"
+              value="Проверить"
             />
-          );
-        })}
-        <div className="form__buttons">
-          <input type="submit" className="button t-submit" value="Проверить" />
-        </div>
-      </form>
-    );
+          </div>
+        </form>
+      );
+    }
   }
 }
 
-class Input extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const errorClass =
-      'field__error field-error t-error-' + this.props.inputName;
-    const inputClass =
-      'field__input field-input t-input-' + this.props.inputName;
-
-    return (
-      <p className="field">
-        <label className="field__label" htmlFor={this.props.inputName}>
-          <span className="field-label">{this.props.inputLabel}</span>
-        </label>
-        <input
-          className={inputClass}
-          type="text"
-          name={this.props.inputName}
-          value={this.props.inputValue}
-          onChange={this.props.changeInputHandler}
-        />
-        <span className={errorClass}>{this.props.errorMsg}</span>
-      </p>
-    );
-  }
+function Input(props) {
+  return (
+    <p className="field">
+      <label className="field__label" htmlFor={props.inputName}>
+        <span className="field-label">{props.inputLabel}</span>
+      </label>
+      <input
+        className={'field__input field-input t-input-' + props.inputName}
+        type="text"
+        name={props.inputName}
+        value={props.inputValue}
+        onChange={props.changeInputHandler}
+      />
+      <span className={'field__error field-error t-error-' + props.inputName}>
+        {props.errorMsg}
+      </span>
+    </p>
+  );
 }
 
-function Profile(props) {
+function Profile() {
   return (
     <div className="app-container">
-      <img
-        src="./assets/bond_approve.jpg"
-        alt="bond approve"
-        className="t-bond-image"
-      />
+      <img src={image} alt="bond approve" className="t-bond-image" />
     </div>
   );
 }
+
 export default Form;
