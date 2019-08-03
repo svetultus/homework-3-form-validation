@@ -1,5 +1,6 @@
 import React from 'react';
 import image from './assets/bond_approve.jpg';
+import './Form.css';
 
 class Form extends React.Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class Form extends React.Component {
       formState: [
         {
           inputName: 'firstname',
-          inputLabel: '',
+          inputLabel: 'Имя',
           value: '',
           valueCorrect: 'james',
           status: null,
@@ -21,7 +22,7 @@ class Form extends React.Component {
         },
         {
           inputName: 'lastname',
-          inputLabel: '',
+          inputLabel: 'Фамилия',
           value: '',
           valueCorrect: 'bond',
           status: null,
@@ -29,7 +30,7 @@ class Form extends React.Component {
         },
         {
           inputName: 'password',
-          inputLabel: '',
+          inputLabel: 'Пароль',
           value: '',
           valueCorrect: '007',
           status: null,
@@ -64,7 +65,7 @@ class Form extends React.Component {
     for (let key in this.map) {
       let index = this.map[key]['index'];
       let currentElement = this.state.formState[index];
-      let state = this.state.formState;
+      let state = this.state.formState.slice();
 
       if (
         !(
@@ -95,7 +96,7 @@ class Form extends React.Component {
 
   changeInputHandler(e) {
     let index = this.map[e.target.name]['index'];
-    let state = this.state.formState;
+    let state = this.state.formState.slice();
     let value = e.target.value;
 
     state[index].value = value;
@@ -105,7 +106,7 @@ class Form extends React.Component {
   }
 
   clearInputs() {
-    let state = this.state.formState;
+    let state = this.state.formState.slice();
 
     state.forEach(elem => {
       elem.errorMsg = '';
@@ -116,34 +117,36 @@ class Form extends React.Component {
   }
 
   render() {
-    let state = this.state.formState;
+    let state = this.state.formState.slice();
 
     if (this.state.isLogged) {
       return <Profile />;
     } else {
       return (
-        <form onSubmit={this.validateForm}>
-          <h1>Введите свои данные, агент</h1>
-          {state.map(elem => {
-            return (
-              <Input
-                key={elem.inputName}
-                inputName={elem.inputName}
-                inputLabel={elem.inputLabel}
-                inputValue={elem.value}
-                errorMsg={elem.errorMsg}
-                changeInputHandler={this.changeInputHandler}
+        <div className="app-container">
+          <form className="form" onSubmit={this.validateForm}>
+            <h1>Введите свои данные, агент</h1>
+            {state.map(elem => {
+              return (
+                <Input
+                  key={elem.inputName}
+                  inputName={elem.inputName}
+                  inputLabel={elem.inputLabel}
+                  inputValue={elem.value}
+                  errorMsg={elem.errorMsg}
+                  changeInputHandler={this.changeInputHandler}
+                />
+              );
+            })}
+            <div className="form__buttons">
+              <input
+                type="submit"
+                className="button t-submit"
+                value="Проверить"
               />
-            );
-          })}
-          <div className="form__buttons">
-            <input
-              type="submit"
-              className="button t-submit"
-              value="Проверить"
-            />
-          </div>
-        </form>
+            </div>
+          </form>
+        </div>
       );
     }
   }
