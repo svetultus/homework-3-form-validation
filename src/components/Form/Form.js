@@ -9,49 +9,41 @@ class Form extends React.Component {
     this.validateForm = this.validateForm.bind(this);
     this.changeInputHandler = this.changeInputHandler.bind(this);
     this.clearInputs = this.clearInputs.bind(this);
+    this.allInputsAreValid = this.allInputsAreValid.bind(this);
 
     this.state = {
-      formState: [
-        {
-          inputName: 'firstname',
-          inputLabel: 'Имя',
-          value: '',
-          valueCorrect: 'james',
+      formState: {
+        firstname: {
           status: null,
           errorMsg: ''
         },
-        {
-          inputName: 'lastname',
-          inputLabel: 'Фамилия',
-          value: '',
-          valueCorrect: 'bond',
+        lastname: {
           status: null,
           errorMsg: ''
         },
-        {
-          inputName: 'password',
-          inputLabel: 'Пароль',
-          value: '',
-          valueCorrect: '007',
+        password: {
           status: null,
           errorMsg: ''
         }
-      ],
+      },
       isLogged: false
     };
     this.map = {
       firstname: {
         index: 0,
+        valueCorrect: 'james',
         errorMsgEmpty: 'Нужно указать имя',
         errorMsgIncorrect: 'Имя указано не верно'
       },
       lastname: {
         index: 1,
+        valueCorrect: 'bond',
         errorMsgEmpty: 'Нужно указать фамилию',
         errorMsgIncorrect: 'Фамилия указана не верно'
       },
       password: {
         index: 2,
+        valueCorrect: '007',
         errorMsgEmpty: 'Нужно указать пароль',
         errorMsgIncorrect: 'Пароль указан не верно'
       }
@@ -62,62 +54,63 @@ class Form extends React.Component {
 
     let form = e.target;
 
-    for (let key in this.map) {
-      let index = this.map[key]['index'];
-      let currentElement = this.state.formState[index];
-      let state = this.state.formState.slice();
+    for (const key in this.map) {
+      const state = Object.assign(this.state.formState);
+      const elem = form.querySelector('.t-input-' + key);
 
-      if (
-        !(
-          form[currentElement.inputName] && form[currentElement.inputName].value
-        )
-      ) {
-        state[index]['errorMsg'] = this.map[key]['errorMsgEmpty'];
-        state[index]['status'] = '';
+      if (!(form[key] && elem.value)) {
+        state[key]['errorMsg'] = this.map[key]['errorMsgEmpty'];
+        state[key]['status'] = '';
       } else if (
-        form[currentElement.inputName] &&
-        form[currentElement.inputName].value !== currentElement.valueCorrect
+        form[key] &&
+        form[key].value !== this.map[key]['valueCorrect']
       ) {
-        state[index]['errorMsg'] = this.map[key]['errorMsgIncorrect'];
-        state[index]['status'] = '';
+        state[key]['errorMsg'] = this.map[key]['errorMsgIncorrect'];
+        state[key]['status'] = '';
       } else {
-        state[index]['errorMsg'] = '';
-        state[index]['status'] = 'validated';
+        state[key]['errorMsg'] = '';
+        state[key]['status'] = 'validated';
       }
       this.setState({ formState: state });
     }
 
-    let formIsValidated = this.state.formState.every(elem => {
-      return elem.status === 'validated';
-    });
+    this.setState({ isLogged: this.allInputsAreValid() });
+  }
 
-    this.setState({ isLogged: formIsValidated });
+  allInputsAreValid() {
+    let count = 0,
+      countValidated = 0;
+    const state = Object.assign(this.state.formState);
+
+    for (const key in state) {
+      count++;
+      if (state[key]['status'] === 'validated') {
+        countValidated++;
+      }
+    }
+    return count === countValidated;
   }
 
   changeInputHandler(e) {
-    let index = this.map[e.target.name]['index'];
-    let state = this.state.formState.slice();
-    let value = e.target.value;
-
-    state[index].value = value;
     this.clearInputs();
-
-    this.setState({ formState: state });
   }
 
   clearInputs() {
-    let state = this.state.formState.slice();
+    const state = Object.assign(this.state.formState);
+    for (const key in state) {
+      if (state.hasOwnProperty(key)) {
+        const elem = state[key];
 
-    state.forEach(elem => {
-      elem.errorMsg = '';
-      elem.status = null;
-    });
+        elem.errorMsg = '';
+        elem.status = null;
+      }
+    }
 
     this.setState({ formState: state });
   }
 
   render() {
-    let state = this.state.formState.slice();
+    const state = Object.assign(this.state.formState);
 
     if (this.state.isLogged) {
       return <Profile />;
@@ -126,18 +119,33 @@ class Form extends React.Component {
         <div className="app-container">
           <form className="form" onSubmit={this.validateForm}>
             <h1>Введите свои данные, агент</h1>
-            {state.map(elem => {
-              return (
-                <Input
-                  key={elem.inputName}
-                  inputName={elem.inputName}
-                  inputLabel={elem.inputLabel}
-                  inputValue={elem.value}
-                  errorMsg={elem.errorMsg}
-                  changeInputHandler={this.changeInputHandler}
-                />
-              );
-            })}
+            <Input
+              key="firstname"
+              inputName="firstname"
+              inputLabel="Имя"
+              inputValue=""
+              valueCorrect="james"
+              errorMsg={state['firstname']['errorMsg']}
+              changeInputHandler={this.changeInputHandler}
+            />
+            <Input
+              key="lastname"
+              inputName="lastname"
+              inputLabel="Фамилия"
+              inputValue=""
+              valueCorrect="bond"
+              errorMsg={state['lastname']['errorMsg']}
+              changeInputHandler={this.changeInputHandler}
+            />
+            <Input
+              key="password"
+              inputName="password"
+              inputLabel="Пароль"
+              inputValue=""
+              valueCorrect="007"
+              errorMsg={state['password']['errorMsg']}
+              changeInputHandler={this.changeInputHandler}
+            />
             <div className="form__buttons">
               <input
                 type="submit"
@@ -162,7 +170,6 @@ function Input(props) {
         className={'field__input field-input t-input-' + props.inputName}
         type="text"
         name={props.inputName}
-        value={props.inputValue}
         onChange={props.changeInputHandler}
       />
       <span className={'field__error field-error t-error-' + props.inputName}>
