@@ -14,14 +14,17 @@ class Form extends React.Component {
     this.state = {
       formState: {
         firstname: {
+          value: '',
           status: null,
           errorMsg: ''
         },
         lastname: {
+          value: '',
           status: null,
           errorMsg: ''
         },
         password: {
+          value: '',
           status: null,
           errorMsg: ''
         }
@@ -52,18 +55,17 @@ class Form extends React.Component {
   validateForm(e) {
     e.preventDefault();
 
-    let form = e.target;
+    const form = e.target;
 
     for (const key in this.map) {
       const state = Object.assign(this.state.formState);
-      const elem = form.querySelector('.t-input-' + key);
 
-      if (!(form[key] && elem.value)) {
+      if (!(form[key] && state[key].value)) {
         state[key]['errorMsg'] = this.map[key]['errorMsgEmpty'];
         state[key]['status'] = '';
       } else if (
         form[key] &&
-        form[key].value !== this.map[key]['valueCorrect']
+        state[key].value !== this.map[key]['valueCorrect']
       ) {
         state[key]['errorMsg'] = this.map[key]['errorMsgIncorrect'];
         state[key]['status'] = '';
@@ -78,21 +80,24 @@ class Form extends React.Component {
   }
 
   allInputsAreValid() {
-    let count = 0,
-      countValidated = 0;
+    let allInputsAreValid = true;
     const state = Object.assign(this.state.formState);
 
     for (const key in state) {
-      count++;
-      if (state[key]['status'] === 'validated') {
-        countValidated++;
+      if (state[key]['status'] !== 'validated') {
+        allInputsAreValid = false;
       }
     }
-    return count === countValidated;
+    return allInputsAreValid;
   }
 
   changeInputHandler(e) {
     this.clearInputs();
+    const state = Object.assign(this.state.formState);
+
+    state[e.target.name].value = e.target.value;
+
+    this.setState({ formState: state });
   }
 
   clearInputs() {
@@ -120,29 +125,23 @@ class Form extends React.Component {
           <form className="form" onSubmit={this.validateForm}>
             <h1>Введите свои данные, агент</h1>
             <Input
-              key="firstname"
               inputName="firstname"
               inputLabel="Имя"
-              inputValue=""
-              valueCorrect="james"
+              inputValue={state['firstname']['value']}
               errorMsg={state['firstname']['errorMsg']}
               changeInputHandler={this.changeInputHandler}
             />
             <Input
-              key="lastname"
               inputName="lastname"
               inputLabel="Фамилия"
-              inputValue=""
-              valueCorrect="bond"
+              inputValue={state['lastname']['value']}
               errorMsg={state['lastname']['errorMsg']}
               changeInputHandler={this.changeInputHandler}
             />
             <Input
-              key="password"
               inputName="password"
               inputLabel="Пароль"
-              inputValue=""
-              valueCorrect="007"
+              inputValue={state['password']['value']}
               errorMsg={state['password']['errorMsg']}
               changeInputHandler={this.changeInputHandler}
             />
@@ -170,6 +169,7 @@ function Input(props) {
         className={'field__input field-input t-input-' + props.inputName}
         type="text"
         name={props.inputName}
+        value={props.inputValue}
         onChange={props.changeInputHandler}
       />
       <span className={'field__error field-error t-error-' + props.inputName}>
